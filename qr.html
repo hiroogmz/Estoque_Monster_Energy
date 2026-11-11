@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QR code · {{ bebida }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+  <main class="pagina-qr">
+    <header class="topo">
+      <h1>{{ bebida }}</h1>
+      <p>Aponte a câmera do celular para registrar o consumo.</p>
+    </header>
+
+    <div class="cartao-qr">
+      <img src="{{ url_for('qr_svg') }}" alt="QR code que abre a versão para celular" width="280" height="280">
+    </div>
+
+    <p class="detalhe">Endereço do QR code: <strong>{{ link }}</strong></p>
+    <p class="detalhe aviso-rede">O celular precisa estar na mesma rede Wi-Fi do computador ou da VM e vai pedir usuário e senha.</p>
+
+    <div class="acoes-qr">
+      <button type="button" data-imprimir>Imprimir</button>
+      <a href="{{ url_for('index') }}">Voltar ao estoque</a>
+    </div>
+  </main>
+</body>
+</html>
