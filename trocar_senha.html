@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trocar Senha · {{ bebida }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+  <main class="pagina-login">
+    <div class="barra-usuario">
+      <span>Logado como <strong>{{ session['usuario'] }}</strong></span>
+      <a class="link-acao" href="{{ url_for('index') }}">Voltar ao Estoque</a>
+    </div>
+
+    <header class="topo">
+      <h1>Trocar Senha</h1>
+      <p>Altere a senha da sua conta de acesso.</p>
+    </header>
+
+    {% with msgs = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in msgs %}
+        <div class="aviso {{ cat }}" role="alert">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <form class="cartao-login" method="post" autocomplete="off">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="campo">
+        <label for="senha_atual">Senha Atual</label>
+        <input id="senha_atual" name="senha_atual" type="password" maxlength="128"
+               autocomplete="current-password" required autofocus>
+      </div>
+      <div class="campo">
+        <label for="nova_senha">Nova Senha</label>
+        <input id="nova_senha" name="nova_senha" type="password" maxlength="128" minlength="6"
+               autocomplete="new-password" placeholder="Mínimo 6 caracteres" required>
+      </div>
+      <div class="campo">
+        <label for="confirmar_nova">Confirmar Nova Senha</label>
+        <input id="confirmar_nova" name="confirmar_nova" type="password" maxlength="128" minlength="6"
+               autocomplete="new-password" placeholder="Repita a nova senha" required>
+      </div>
+      <button type="submit">Salvar Nova Senha</button>
+      <div class="divisor-ou"><span>ou</span></div>
+      <a href="{{ url_for('index') }}" class="btn-secundario">Cancelar</a>
+    </form>
+  </main>
+</body>
+</html>
