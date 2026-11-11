@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Criar Conta · {{ bebida }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+  <main class="pagina-login">
+    <header class="topo">
+      <h1>{{ bebida }}</h1>
+      <p>Crie sua conta para acessar o sistema.</p>
+    </header>
+
+    {% with msgs = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in msgs %}
+        <div class="aviso {{ cat }}" role="alert">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <form class="cartao-login" method="post" autocomplete="off">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="campo">
+        <label for="usuario">Nome de Usuário</label>
+        <input id="usuario" name="usuario" type="text" maxlength="50" minlength="3"
+               value="{{ usuario|default('') }}" autocomplete="username" autocapitalize="none"
+               placeholder="Ex: joao_silva" required autofocus>
+        <small class="ajuda-campo">3 a 50 caracteres (letras, números, _, -, .)</small>
+      </div>
+      <div class="campo">
+        <label for="senha">Senha</label>
+        <input id="senha" name="senha" type="password" maxlength="128" minlength="6"
+               autocomplete="new-password" placeholder="Mínimo 6 caracteres" required>
+      </div>
+      <div class="campo">
+        <label for="confirmar_senha">Confirmar Senha</label>
+        <input id="confirmar_senha" name="confirmar_senha" type="password" maxlength="128" minlength="6"
+               autocomplete="new-password" placeholder="Repita a senha" required>
+      </div>
+      <button type="submit">Cadastrar</button>
+      <div class="divisor-ou"><span>ou</span></div>
+      <a href="{{ url_for('login') }}" class="btn-secundario">Já tem conta? Entrar</a>
+    </form>
+  </main>
+</body>
+</html>
