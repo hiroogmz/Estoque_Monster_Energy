@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Adicionar Contribuinte · {{ bebida }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+  <main class="pagina-login" style="max-width: 520px;">
+    <div class="barra-usuario">
+      <span>Conta dona: <strong>{{ session['usuario'] }}</strong></span>
+      <a class="link-acao" href="{{ url_for('index') }}">Voltar ao Estoque</a>
+    </div>
+
+    <header class="topo">
+      <h1>Adicionar Contribuinte</h1>
+      <p>Crie um usuário e senha com acesso ao estoque da sua conta.</p>
+    </header>
+
+    {% with msgs = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in msgs %}
+        <div class="aviso {{ cat }}" role="alert">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <form class="cartao-login" method="post" autocomplete="off">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="campo">
+        <label for="usuario">Usuário do Contribuinte</label>
+        <input id="usuario" name="usuario" type="text" maxlength="50" minlength="3"
+               autocomplete="off" autocapitalize="none"
+               placeholder="Ex: joao_ajudante" required autofocus>
+        <small class="ajuda-campo">3 a 50 caracteres (letras, números, _, -, .)</small>
+      </div>
+      <div class="campo">
+        <label for="senha">Senha</label>
+        <input id="senha" name="senha" type="password" maxlength="128" minlength="6"
+               autocomplete="new-password" placeholder="Mínimo 6 caracteres" required>
+      </div>
+      <div class="campo">
+        <label for="confirmar_senha">Confirmar Senha</label>
+        <input id="confirmar_senha" name="confirmar_senha" type="password" maxlength="128" minlength="6"
+               autocomplete="new-password" placeholder="Repita a senha" required>
+      </div>
+      <button type="submit">Cadastrar Contribuinte</button>
+      <div class="divisor-ou"><span>ou</span></div>
+      <a href="{{ url_for('index') }}" class="btn-secundario">Voltar ao Estoque</a>
+    </form>
+
+    <section class="secao-contribuintes">
+      <h2>Contribuintes Ativos</h2>
+      {% if contribuintes %}
+        <div class="rolagem">
+          <table>
+            <thead>
+              <tr>
+                <th>Usuário</th>
+                <th>Cadastrado em</th>
+                <th style="text-align: right;">Ação</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for c in contribuintes %}
+              <tr>
+                <td><strong>{{ c.contribuinte }}</strong></td>
+                <td>{{ c.criado_em.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td style="text-align: right;">
+                  <form method="post" action="{{ url_for('remover_contribuinte', contrib_id=c.id) }}"
+                        data-confirmar="Remover o contribuinte '{{ c.contribuinte }}'? Ele perderá o acesso ao seu estoque."
+                        style="margin: 0; display: inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="link" type="submit" style="color: var(--vermelho);">Remover</button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="vazio">Nenhum contribuinte vinculado ainda. Use o formulário acima para adicionar um.</p>
+      {% endif %}
+    </section>
+  </main>
+</body>
+</html>
