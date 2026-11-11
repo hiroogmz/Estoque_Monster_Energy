@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Estoque · {{ bebida }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+  <main>
+    <div class="barra-usuario">
+      <div>
+        <span>Logado como <strong>{{ session['usuario'] }}</strong></span>
+        {% if session.get('dono') %}
+          <span class="tag-contribuinte">Contribuído a {{ session['dono'] }}</span>
+        {% else %}
+          <span class="tag-supervisor">Supervisor</span>
+        {% endif %}
+      </div>
+      <div class="acoes-usuario">
+        <a class="link-acao" href="{{ url_for('trocar_senha') }}">Trocar senha</a>
+        <form method="post" action="{{ url_for('logout') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="link-sair" type="submit">Sair</button>
+        </form>
+      </div>
+    </div>
+
+    <header class="topo">
+      <h1>{{ bebida }}</h1>
+      <p>{{ embalagem }} · mínimo de {{ minimo }} unidades</p>
+      <nav class="atalhos">
+        <a href="{{ url_for('qr_pagina') }}">QR code do frigobar</a>
+        {% if not session.get('dono') %}
+          <a class="btn-contribuinte" href="{{ url_for('adicionar_contribuinte') }}">+ Adicionar Contribuinte</a>
+        {% endif %}
+      </nav>
+    </header>
+
+    {% if session.get('dono') %}
+      <div class="aviso-vinculo">
+        📦 Você está acessando o estoque <strong>contribuído a {{ session['dono'] }}</strong>.
+      </div>
+    {% endif %}
+
+    {% with msgs = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in msgs %}
+        <div class="aviso {{ cat }}" role="status">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <section class="painel {{ 'baixo' if baixo }}">
+      <p class="grande">{{ total }}<span> unidade{{ 's' if total != 1 }}</span></p>
+      <p class="detalhe">{{ caixas }} caixa{{ 's' if caixas != 1 }} de {{ por_caixa }} + {{ avulsas }} avulsa{{ 's' if avulsas != 1 }}</p>
+      <p class="detalhe">Valor em estoque: R$ {{ '%.2f'|format(valor)|replace('.', ',') }}</p>
+      {% if baixo %}
+        <p class="alerta">Estoque abaixo do mínimo. Hora de repor.</p>
+      {% endif %}
+    </section>
+
+    <section class="registrar">
+      <h2>Registrar movimentação</h2>
+      <form method="post" action="{{ url_for('movimentar') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="campo">
+          <label for="tipo">Tipo</label>
+          <select id="tipo" name="tipo">
+            <option value="entrada">Entrada (compra / reposição)</option>
+            <option value="saida">Saída (consumo)</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label for="quantidade">Quantidade (unidades)</label>
+          <input id="quantidade" name="quantidade" type="number" min="1" max="10000" required>
+        </div>
+        <div class="campo largo">
+          <label for="sabor">Sabor (opcional)</label>
+          <input id="sabor" name="sabor" type="text" maxlength="120" placeholder="Ex.: Tradicional, Mango Loco, Zero Açúcar">
+        </div>
+        <button type="submit">Salvar movimentação</button>
+      </form>
+    </section>
+
+    <section class="historico">
+      <h2>Últimas movimentações</h2>
+      {% if historico %}
+      <div class="rolagem">
+        <table>
+          <thead>
+            <tr><th>Data</th><th>Tipo</th><th class="num">Qtd.</th><th>Sabor</th><th>Usuário</th><th></th></tr>
+          </thead>
+          <tbody>
+            {% for m in historico %}
+            <tr>
+              <td>{{ m.criado_em.strftime('%d/%m/%Y %H:%M') }}</td>
+              <td><span class="tag {{ m.tipo }}">{{ 'Entrada' if m.tipo == 'entrada' else 'Saída' }}</span></td>
+              <td class="num">{{ m.quantidade }}</td>
+              <td>{{ m.sabor or '—' }}</td>
+              <td>{{ m.usuario or '—' }}</td>
+              <td>
+                <form method="post" action="{{ url_for('desfazer', mov_id=m.id) }}"
+                      data-confirmar="Remover esta movimentação?">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button class="link" type="submit">Remover</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <p class="vazio">Nada registrado ainda. Comece lançando a primeira entrada acima.</p>
+      {% endif %}
+    </section>
+
+    {% if not session.get('dono') %}
+    <section class="secao-contribuintes-painel">
+      <div class="cabecalho-secao">
+        <h2>Lista de Contribuintes</h2>
+        <a class="btn-contribuinte" href="{{ url_for('adicionar_contribuinte') }}">+ Adicionar Contribuinte</a>
+      </div>
+      {% if contribuintes %}
+        <div class="rolagem">
+          <table>
+            <thead>
+              <tr>
+                <th>Contribuinte</th>
+                <th>Cadastrado em</th>
+                <th style="text-align: right;">Ação</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for c in contribuintes %}
+              <tr>
+                <td><strong>{{ c.contribuinte }}</strong></td>
+                <td>{{ c.criado_em.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td style="text-align: right;">
+                  <form method="post" action="{{ url_for('remover_contribuinte', contrib_id=c.id) }}"
+                        data-confirmar="Remover o contribuinte '{{ c.contribuinte }}'? Ele perderá o acesso ao seu estoque."
+                        style="margin: 0; display: inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="link" type="submit" style="color: var(--vermelho);">Remover</button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="vazio">Nenhum contribuinte cadastrado. Use o botão acima para adicionar alguém ao seu estoque.</p>
+      {% endif %}
+    </section>
+    {% endif %}
+  </main>
+</body>
+</html>
