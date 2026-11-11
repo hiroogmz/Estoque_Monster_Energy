@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Entrar · {{ bebida }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+  <main class="pagina-login">
+    <header class="topo">
+      <h1>{{ bebida }}</h1>
+      <p>Entre para acessar o estoque.</p>
+    </header>
+
+    {% with msgs = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in msgs %}
+        <div class="aviso {{ cat }}" role="alert">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <form class="cartao-login" method="post" autocomplete="on">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="campo">
+        <label for="usuario">Usuário</label>
+        <input id="usuario" name="usuario" type="text" maxlength="50"
+               autocomplete="username" autocapitalize="none" required autofocus>
+      </div>
+      <div class="campo">
+        <label for="senha">Senha</label>
+        <input id="senha" name="senha" type="password" maxlength="128"
+               autocomplete="current-password" required>
+      </div>
+      <button type="submit">Entrar</button>
+      <div class="divisor-ou"><span>ou</span></div>
+      <a href="{{ url_for('cadastro') }}" class="btn-secundario">Criar conta</a>
+    </form>
+  </main>
+</body>
+</html>
