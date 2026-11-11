@@ -10,8 +10,8 @@ usuario = input("Nome do usuário: ").strip()
 if not usuario or len(usuario) > 50:
     raise SystemExit("Nome inválido (1 a 50 caracteres).")
 
-senha = getpass.getpass("Senha (mínimo 8 caracteres): ")
-if len(senha) < 8:
+senha = getpass.getpass("Senha (mínimo 6 caracteres): ")
+if len(senha) < 6:
     raise SystemExit("Senha muito curta.")
 if senha != getpass.getpass("Repita a senha: "):
     raise SystemExit("As senhas não conferem.")
