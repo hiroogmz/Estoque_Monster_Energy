@@ -66,10 +66,7 @@ Banco `estoque`, com quatro tabelas:
 - `usuarios`: contas do sistema (com hash da senha)
 - `movimentos`: entradas e saídas, com quantidade, sabor, usuário e data
 - `contribuintes`: vínculo entre o supervisor e seus contribuintes
-- `tentativas_login`: controle contra ataques de força bruta
-
-**Antes de executar:**
-Crie uma pasta "templates" dentro da pasta que você baixou do github, essa pasta é para os arquivos em HTML. 
+- `tentativas_login`: controle contra ataques de força bruta 
 
 **Como executar:**
 
