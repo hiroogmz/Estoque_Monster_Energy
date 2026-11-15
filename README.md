@@ -106,3 +106,5 @@ Para criar ou redefinir um usuário pelo terminal: `py criar_usuario.py`
 - Guilherme Pedro dos Santos
 - Gustavo Henrique de Souza
 - Maria Eduarda De Lima Campos
+
+Video pitch: https://youtube.com/shorts/zZ4qTLTmR9o?feature=share
